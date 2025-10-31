@@ -4,11 +4,11 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Post;
+import ru.yandex.practicum.catsgram.model.SortOrder;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 // Указываем, что класс PostService - является бином и его
 // нужно добавить в контекст приложения
@@ -18,6 +18,20 @@ public class PostService {
 
     public Collection<Post> findAll() {
         return posts.values();
+    }
+
+    public List<Post> findAll(int from, int size, SortOrder sort) {
+        Comparator<Post> dateComparator = Comparator.comparing(Post::getPostDate);
+
+        if (sort == SortOrder.DESCENDING) {
+            dateComparator = dateComparator.reversed();
+        }
+
+        return posts.values().stream()
+                .sorted(dateComparator)
+                .skip(from)
+                .limit(size)
+                .collect(Collectors.toList());
     }
 
     public Post getPostById(Long id) {
